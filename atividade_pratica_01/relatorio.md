@@ -12,10 +12,24 @@ Nesta questão, eu me baseei no [Google Colab](https://colab.research.google.com
 
 Primeiramente, eu fiz a instalação do ```numpy matplotlib```, e importei ambos.
 
+``` python
+%pip install numpy matplotlib
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+```
+
 Na **letra A**, o objetivo era criar uma máscara branca em cima de um quadrado preto 200x200 px. Inicialmente criei o quadrado preto de lado 200 px. multiplicando a matriz de ones por 0, para aplicar a cor preta.
 
 ``` python
+# imagem 200x200, pixels pretos (0)
 imagem_preta = np.ones((200, 200), dtype=np.uint8) * 0
+
+imagem_preta[50:150, 50:150] = 255
+
+plt.imshow(imagem_preta, cmap='gray', vmin=0, vmax=255)
+plt.title('Imagem Preta com Quadrado Branco (Escala de Cinza)')
+plt.show()
 ```
 
 Depois, foi só criar uma máscara ```imagem_preta[50:150, 50:150] = 255```, que é igual a 255 porque possui a máxima intensidade (coloração branca).
@@ -25,11 +39,18 @@ Depois, foi só criar uma máscara ```imagem_preta[50:150, 50:150] = 255```, que
 Na **letra B**, gerei a imagem a partir da matriz de zeros (preta) no tamanho 200x200 px. Pra conseguir representar os níveis de intensidade do cinza, usei a função linspace, do np, o que fez a variação de cores acontecer (isso é basicamente o degradê). E o reshape usei para transformar o vetor do linspace em uma linha só. Pra aplicar essa linha na imagem inteira, usei o repeat com parâmetro 200.
 
 ``` python
+# imagem 200x200
+imagem_degrade = np.zeros((200, 200), dtype=np.uint8)
+
 # gradiente horizontal
 imagem_degrade = np.linspace(0, 255, 200, dtype=np.uint8).reshape(1,  200) 
 
 # repete o gradiente para preencher a imagem
 imagem_degrade = np.repeat(imagem_degrade, 200, axis=0)
+
+plt.imshow(imagem_degrade, cmap='gray')
+plt.title('Imagem com Gradiente')
+plt.show()
 ```
 
 ![alt text](image-1.png)
@@ -39,6 +60,10 @@ Na **letra C**, usei a função do np where(), colocando primeiro a condição: 
 ``` python
 # se imagem_preta for 0, mantém imagem_preta. senão, usa o valor de imagem_degrade
 imagem_mesclada = np.where(imagem_preta == 0, imagem_preta, imagem_degrade)
+
+plt.imshow(imagem_mesclada, cmap='gray')
+plt.title('Imagem Mesclada (Quadrado Branco + Gradiente)')
+plt.show()
 ```
 
 ![alt text](image-2.png)
@@ -49,9 +74,43 @@ imagem_mesclada = np.where(imagem_preta == 0, imagem_preta, imagem_degrade)
 
 Na **letra A**, apenas importei a imagem do diretório atual, com função do plt.imread, e depois imprimi na tela (saída) a imagem para verificar se estava ok.
 
+```python
+img_q2_a = plt.imread('q2_a_original.png', format='png')
+
+plt.imshow(img_q2_a, cmap='gray')
+plt.title('Imagem Q2-A (Original)')
+plt.show()
+```
+
+![alt text](image-3.png)
+
 Na **letra B**, usei a imagem original como base e inverti a ordem das suas cores primárias de [0,1,2] para [2,1,0]. Ou seja: de RGB para BGR.
 
+``` python
+# convertendo de RGB para BGR
+img_q2_a_BGR = img_q2_a[:, :, [2,1,0]]
+
+plt.imshow(img_q2_a_BGR)
+plt.title('Imagem Q2-A (BGR)')
+plt.show()
+```
+
+![alt text](image-4.png)
+
 Na **letra c**, basicamente zerei as cores primárias verde ([..., 1]) e azul ([..., 2]). Dessa forma, prevaleceu só a cor primária vermelha ([..., 0]), que serviu de filtro e "refletiu" somente as tonalidades de vermelho presentes na imagem.
+
+```python
+img_q2_a_red = img_q2_a.copy()
+
+img_q2_a_red[..., 1] = 0  # canal verde
+img_q2_a_red[..., 2] = 0  # canal azul
+
+plt.imshow(img_q2_a_red)
+plt.title('Imagem Q2-A (Filtro Vermelho Forte)')
+plt.show()
+```
+
+![alt text](image-5.png)
 
 ---
 
