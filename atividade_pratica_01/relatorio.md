@@ -12,11 +12,36 @@ Nesta questão, eu me baseei no [Google Colab](https://colab.research.google.com
 
 Primeiramente, eu fiz a instalação do ```numpy matplotlib```, e importei ambos.
 
-Na **letra A**, o objetivo era criar uma máscara branca em cima de um quadrado preto 200x200 px. Inicialmente criei o quadrado preto de lado 200 px. multiplicando a matriz de ones por 0, para aplicar a cor preta. Depois, foi só criar uma máscara ```imagem_preta[50:150, 50:150] = 255```, que é igual a 255 porque possui a máxima intensidade (coloração branca).
+Na **letra A**, o objetivo era criar uma máscara branca em cima de um quadrado preto 200x200 px. Inicialmente criei o quadrado preto de lado 200 px. multiplicando a matriz de ones por 0, para aplicar a cor preta.
+
+``` python
+imagem_preta = np.ones((200, 200), dtype=np.uint8) * 0
+```
+
+Depois, foi só criar uma máscara ```imagem_preta[50:150, 50:150] = 255```, que é igual a 255 porque possui a máxima intensidade (coloração branca).
+
+![alt text](image.png)
 
 Na **letra B**, gerei a imagem a partir da matriz de zeros (preta) no tamanho 200x200 px. Pra conseguir representar os níveis de intensidade do cinza, usei a função linspace, do np, o que fez a variação de cores acontecer (isso é basicamente o degradê). E o reshape usei para transformar o vetor do linspace em uma linha só. Pra aplicar essa linha na imagem inteira, usei o repeat com parâmetro 200.
 
+``` python
+# gradiente horizontal
+imagem_degrade = np.linspace(0, 255, 200, dtype=np.uint8).reshape(1,  200) 
+
+# repete o gradiente para preencher a imagem
+imagem_degrade = np.repeat(imagem_degrade, 200, axis=0)
+```
+
+![alt text](image-1.png)
+
 Na **letra C**, usei a função do np where(), colocando primeiro a condição: onde houver pixels 0 (pretos) na imagem_preta. Se verdadeiro, então mantem a imagem_preta. Se false, então usa-se a imagem_degrade.
+
+``` python
+# se imagem_preta for 0, mantém imagem_preta. senão, usa o valor de imagem_degrade
+imagem_mesclada = np.where(imagem_preta == 0, imagem_preta, imagem_degrade)
+```
+
+![alt text](image-2.png)
 
 ---
 
