@@ -99,7 +99,7 @@ plt.show()
 
 Na **letra c**, basicamente zerei as cores primárias verde ([..., 1]) e azul ([..., 2]). Dessa forma, prevaleceu só a cor primária vermelha ([..., 0]), que serviu de filtro e "refletiu" somente as tonalidades de vermelho presentes na imagem.
 
-```python
+``` python
 img_q2_a_red = img_q2_a.copy()
 
 img_q2_a_red[..., 1] = 0  # canal verde
@@ -118,9 +118,49 @@ plt.show()
 
 Na **letra A**, com uso da função da média pelo np (np.mean) em cima da imagem original, o que resulta em um único valor de intensidade. A imagem ficou acinzentada porque essa função da média retirou a informação das cores, mantendo somente a intensidade de cada pixel mesmo.
 
+``` python
+# convertendo para escala de cinza usando a média dos canais
+img_cinza = (np.mean(img_q2_a, axis=2) * 255).astype(np.uint8)
+
+plt.imshow(img_cinza, cmap='gray')
+plt.title('Imagem Q2-A (Média dos Canais - Escala de Cinza)')
+plt.show()
+```
+
+![alt text](image-6.png)
+
 Na **letra B**, usei de novo a função da média, que retornou o valor da intensidade média global da imagem. Pra ver a distribuição dos níveis de cinza, criei o histograma solicitado, mostrando a distribuição dos pixels.
 
+``` python
+# cálculo da média geral de todos os pixels
+media_geral = np.mean(img_cinza)
+print(f'Média geral dos pixels: {media_geral}')
+
+# histograma com 255 bins
+plt.figure(figsize=(10, 6))
+plt.hist(img_cinza.flatten(), bins=255, color='gray', edgecolor='black')
+plt.title(f'Histograma\nMédia: {media_geral:.2f}')
+plt.show()
+```
+
+![alt text](image-7.png)
+
 Na **letra C**, usei o valor da média como limiar, com ajuda da função where novamente. Ou seja: se os pixels (a partir da imagem cinza desta quetsão) forem maiores ou iguais ao limiar, então seriam convertidos para branco (255). Se forem menores do que o limiar, então seriam convertidos para preto (0).
+
+``` python
+# usando a média como limiar
+threshold = media_geral
+
+# criando a imagem binária (máscara)
+img_limiarizada = np.where(img_cinza >= threshold, 255, 0).astype(np.uint8)
+
+# exibindo resultado
+plt.imshow(img_limiarizada, cmap='gray')
+plt.title(f'Limiarização (Threshold = {threshold:.2f})')
+plt.show()
+```
+
+![alt text](image-8.png)
 
 ---
 
@@ -128,6 +168,58 @@ Na **letra C**, usei o valor da média como limiar, com ajuda da função where 
 
 Na **letra A**, o objetivo era fazer uma máscara para o fundo (nesse caso da imagem, seria o céu). Usei uma linha para verificar qual é a intensidade da cor do céu, ou seja, o código RGB dele, para usar na máscara. Essa máscara é feita usando a sugestão do comando da questão, que era sobre usar lógica booleana com o operador &. Assim, foi só aplicar a máscara, com os valores encontrados dos pixels do céu, em cima da imagem original. No fim, o céu ficou "isolado" mesmo.
 
+``` python
+print(img_q2_a[10, 10])  # pega um ponto do céu
+
+# valores de R, G, B do céu (normalizados entre 0 e 1)
+R_ref = 0.5294118
+G_ref = 0.80784315
+B_ref = 0.92156863
+
+# criando máscara booleana do fundo
+mascara_fundo = (
+    (np.abs(img_q2_a[:, :, 0] - R_ref) <= 0.05) &
+    (np.abs(img_q2_a[:, :, 1] - G_ref) <= 0.05) &
+    (np.abs(img_q2_a[:, :, 2] - B_ref) <= 0.05)
+)
+
+plt.imshow(mascara_fundo, cmap='gray')
+plt.title('Máscara do Fundo')
+plt.show()
+```
+
+![alt text](image-9.png)
+
 Na **letra B**, eu basicamente repliquei a lógica de importação da imagem presente na questão 2A. Claro que dessa vez mudando o nome do arquivo de origem.
 
+``` python
+novo_fundo = plt.imread('q4_b_fundo.png', format='png')
+
+plt.imshow(novo_fundo, cmap='gray')
+plt.title('Novo fundo para céu')
+plt.show()
+```
+
+![alt text](image-10.png)
+
 Na **letra C**, apliquei uma lógica de Chroma Key. Criei uma cópia da imagem original, da questão 2, e utilizei a indexação booleana do np pra substituir os pixels da imagem original pelos pixels advindos da nova imagem carregada, que é o novo fundo (obtido na questão 4B). Como a máscara era somente do céu, então somente eles foram substituídos.
+
+
+``` python
+# garantir que o fundo novo tem o mesmo tamanho
+novo_fundo = novo_fundo[:, :, :3]
+img_original = img_q2_a[:, :, :3]
+
+# cópia da imagem original
+imagem_final = img_original.copy()
+
+# aplicação do chroma key
+imagem_final[mascara_fundo] = novo_fundo[mascara_fundo]
+
+# exibir resultado
+plt.imshow(imagem_final)
+plt.title('Chroma Key - Fundo Substituído')
+plt.show()
+```
+
+![alt text](image-11.png)
